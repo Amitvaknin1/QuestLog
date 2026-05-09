@@ -7,11 +7,11 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
-function signToken(userId: string): string {
-  return jwt.sign({ userId }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
+function signToken(userId: string, role: string): string {
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
 }
 
 export async function register(req: Request, res: Response): Promise<void> {
@@ -30,10 +30,10 @@ export async function register(req: Request, res: Response): Promise<void> {
     }
 
     const user = await User.create({ username, email, password });
-    const token = signToken(String(user._id));
+    const token = signToken(String(user._id), user.role);
 
     res.cookie("token", token, COOKIE_OPTIONS);
-    res.status(201).json({ data: { id: user._id, username: user.username, email: user.email } });
+    res.status(201).json({ data: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error("[POST /auth/register]", err);
     res.status(500).json({ error: "Registration failed" });
@@ -55,9 +55,9 @@ export async function login(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const token = signToken(String(user._id));
+    const token = signToken(String(user._id), user.role);
     res.cookie("token", token, COOKIE_OPTIONS);
-    res.json({ data: { id: user._id, username: user.username, email: user.email } });
+    res.json({ data: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error("[POST /auth/login]", err);
     res.status(500).json({ error: "Login failed" });
@@ -76,7 +76,7 @@ export async function me(req: AuthRequest, res: Response): Promise<void> {
       res.status(404).json({ error: "User not found" });
       return;
     }
-    res.json({ data: { id: user._id, username: user.username, email: user.email } });
+    res.json({ data: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error("[GET /auth/me]", err);
     res.status(500).json({ error: "Failed to fetch user" });

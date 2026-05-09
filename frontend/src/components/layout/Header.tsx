@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
@@ -25,6 +26,14 @@ export default function Header() {
               <span className="text-gray-400 text-sm hidden sm:block">
                 Hey, <span className="text-violet-400 font-medium">{user.username}</span>
               </span>
+              {user.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className="text-sm text-amber-400 hover:text-amber-300 border border-amber-700 hover:border-amber-500 rounded-lg px-3 py-1.5 transition"
+                >
+                  Admin
+                </Link>
+              )}
               <button
                 onClick={logout}
                 className="text-sm text-gray-400 hover:text-white border border-gray-600 hover:border-gray-400 rounded-lg px-3 py-1.5 transition"

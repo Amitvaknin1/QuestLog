@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { connectToDatabase } from "./lib/mongodb";
 import authRoutes from "./routes/auth.routes";
 import questRoutes from "./routes/quest.routes";
+import adminRoutes from "./routes/admin.routes";
 
 const app = express();
 const PORT = process.env.PORT ?? 5000;
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/quests", questRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
