@@ -1,23 +1,24 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { api } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await api.auth.login({ email, password });
+      await login(email, password);
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

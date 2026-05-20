@@ -14,6 +14,7 @@ interface User {
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -31,6 +32,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+  async function login(email: string, password: string) {
+    const res = await api.auth.login({ email, password });
+    setUser(res.data);
+  }
+
   async function logout() {
     await api.auth.logout();
     setUser(null);
@@ -38,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
